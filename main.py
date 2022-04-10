@@ -29,8 +29,10 @@ parser.add_argument('--lr', '-lr',type=float, default=0.01, help='Learning Rate.
 parser.add_argument('--seed', type=int, default=123, help='random seed to use. Default=123')
 
 # model configuration
-parser.add_argument('--upscale_factor', '-uf',  type=int, default=4, help="super resolution upscale factor")
+parser.add_argument('--upscale_factor', '-uf',  type=int, default=2, help="super resolution upscale factor")
 parser.add_argument('--model', '-m', type=str, default='srgan', help='choose which model is going to use')
+
+parser.add_argument('--test_only', '-to', type=int, default=0, help="load pre-trained data and do testing")
 
 args = parser.parse_args()
 
@@ -68,8 +70,7 @@ def main():
     else:
         raise Exception("the model does not exist")
 
-    model.run()
-
+    model.run() if args.test_only == 0 else model.testOnly()
 
 if __name__ == '__main__':
     main()

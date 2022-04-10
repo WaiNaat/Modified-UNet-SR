@@ -36,7 +36,7 @@ class unetTrainer(object):
         self.training_loader = training_loader
         self.testing_loader = testing_loader
 
-        self.save_path = os.path.join("result_1")
+        self.save_path = os.path.join("result")
         self.logger = self.set_logger()
 
     def set_logger(self):
@@ -97,16 +97,22 @@ class unetTrainer(object):
             prediction = self.model(data)
 
             # L1 loss
-            loss = self.criterion_3(prediction, target)
+            #loss = self.criterion_3(prediction, target)
 
             # MSE loss
             #loss = self.criterion(prediction, target)
 
             # MixGE loss
-            #mseLoss = self.criterion(prediction, target)
+            mseLoss = self.criterion(prediction, target)
+            geLoss = self.criterion_2(prediction, target)
+            loss = mseLoss + 0.1 * geLoss
+
+            # new MixGE loss 
+            # Van Der Jeught, S., Muyshondt, P. G., & Lobato, I. (2021). Optimized loss function in deep learning profilometry for improved prediction performance. Journal of Physics: Photonics, 3(2), 024014.
+            #l1Loss = self.criterion_3(prediction, target)
             #geLoss = self.criterion_2(prediction, target)
-            #loss = mseLoss + 0.1 * geLoss
-            
+            #loss = 0.5 * l1Loss + 0.5 * geLoss
+
             #print(str(loss1.cpu().detach().numpy())+'  '+str(loss_ssim.cpu().detach().numpy()))
             
             train_loss += loss.item()
@@ -159,3 +165,9 @@ class unetTrainer(object):
             self.scheduler.step(epoch)
             if epoch == self.nEpochs:
                 self.save_model()
+
+    def testOnly(self):
+        self.build_model()
+        self.model.load_state_dict(torch.load("result/my_model.pth"))
+        self.model.to(self.device)
+        self.test(self.nEpochs)
