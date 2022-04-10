@@ -2,14 +2,15 @@ import tarfile
 from os import remove
 from os.path import exists, join, basename
 
-from six.moves import urllib
+#from six.moves import urllib
 from torchvision.transforms import Compose, CenterCrop, ToTensor, Resize
+from torchvision.transforms.functional import InterpolationMode
 
 from .dataset import DatasetFromFolder
 
 
-def download_bsd300(dest="./dataset"):
-    output_image_dir = join(dest, "output2/images")#"BSDS300/images""ICDAR2003/images""output/images""output2/images""SET14/images"
+def download_bsd300(dest="dataset"):
+    output_image_dir = join(dest, "bsds300")#"BSDS300/images""ICDAR2003/images""output/images""output2/images""SET14/images"
     print('this')
     if not exists(output_image_dir):
         #url = "http://www2.eecs.berkeley.edu/Research/Projects/CS/vision/bsds/BSDS300-images.tgz"
@@ -25,7 +26,7 @@ def calculate_valid_crop_size(crop_size, upscale_factor):
 def input_transform(crop_size, upscale_factor):
     return Compose([
         #CenterCrop(crop_size),
-        Resize(crop_size // upscale_factor),
+        Resize((crop_size // upscale_factor, crop_size // upscale_factor)),
         ToTensor(),
     ])
 
@@ -33,7 +34,7 @@ def input_transform(crop_size, upscale_factor):
 def target_transform(crop_size):
     return Compose([
         #CenterCrop(crop_size),
-        Resize(crop_size),
+        Resize((crop_size, crop_size), InterpolationMode.BICUBIC),
         ToTensor(),
     ])
 
